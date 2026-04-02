@@ -10,32 +10,30 @@ public class BookingService {
 
     private final BookingDAO bookingDAO = new BookingDAO();
 
-    // [FIX] Delegate sang DAO thay vì chứa SQL trực tiếp
     public boolean isPCBooked(int pcId) {
         return bookingDAO.isPCBooked(pcId);
     }
 
-    // [FIX] Delegate sang DAO
     public int createBooking(int userId, int pcId, int hours) {
         return bookingDAO.createBooking(userId, pcId, hours);
     }
 
-    public void cancelBooking(int bookingId, int pcId) {
-        try (Connection conn = DBConnection.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement(
-                    "UPDATE bookings SET status='CANCELLED' WHERE id=?"
-            );
-            ps.setInt(1, bookingId);
-            ps.executeUpdate();
-
-            PreparedStatement ps2 = conn.prepareStatement(
-                    "UPDATE pcs SET status='AVAILABLE' WHERE id=?"
-            );
-            ps2.setInt(1, pcId);
-            ps2.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public void cancelBooking(int bookingId, int pcId) {
+//        try (Connection conn = DBConnection.getConnection()) {
+//            PreparedStatement ps = conn.prepareStatement(
+//                    "UPDATE bookings SET status='CANCELLED' WHERE id=?"
+//            );
+//            ps.setInt(1, bookingId);
+//            ps.executeUpdate();
+//
+//            PreparedStatement ps2 = conn.prepareStatement(
+//                    "UPDATE pcs SET status='AVAILABLE' WHERE id=?"
+//            );
+//            ps2.setInt(1, pcId);
+//            ps2.executeUpdate();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

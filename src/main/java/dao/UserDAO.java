@@ -62,7 +62,7 @@ public class UserDAO {
                 u.setUsername(rs.getString("username"));
                 u.setFullName(rs.getString("full_name"));
                 u.setRole(rs.getString("role"));
-                u.setBalance(rs.getDouble("balance")); // 👈 thêm dòng này
+                u.setBalance(rs.getDouble("balance"));
 
                 return u;
             }

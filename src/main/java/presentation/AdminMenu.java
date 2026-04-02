@@ -662,16 +662,11 @@ public class AdminMenu {
         UserDAO dao = new UserDAO();
 
         while (true) {
-            System.out
-                    .println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━ Customer ━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-            System.out
-                    .println("|                            |                          |                            |");
-            System.out
-                    .println("| 1. Xem danh sách user      | 2. Nạp tiền              | 0. Quay lại                |");
-            System.out
-                    .println("|                            |                          |                            |");
-            System.out
-                    .println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+            System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━ Customer ━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+            System.out.println("|                            |                          |                            |");
+            System.out.println("| 1. Xem danh sách user      | 2. Nạp tiền              | 0. Quay lại                |");
+            System.out.println("|                            |                          |                            |");
+            System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
 
             int c;
             try {
