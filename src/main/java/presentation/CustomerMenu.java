@@ -1,24 +1,13 @@
 package presentation;
 
-import dao.FoodDAO;
-import dao.PCDAO;
-import model.Food;
-import model.PC;
+import dao.BookingDAO;
 import model.User;
-import service.BookingService;
-import service.OrderService;
-import util.DBConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class CustomerMenu {
-    // tính giờ chơi
+
     static long startTime;
     static boolean isPlaying = false;
     static User currentUser;
@@ -26,6 +15,7 @@ public class CustomerMenu {
     public static void setUser(User user) {
         currentUser = user;
     }
+
     public static void showMenu() {
         System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━ Customer ━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
         System.out.println("|                            |                          |                            |");
@@ -63,19 +53,15 @@ public class CustomerMenu {
                     case 1:
                         CustomerHandler.datMayFlow(currentUser, sc);
                         break;
-
                     case 2:
                         CustomerHandler.xemTaiKhoan(currentUser);
                         break;
-
                     case 3:
                         xemTrangThai(currentUser.getId());
                         break;
-
                     case 4:
                         System.out.println("Đăng xuất");
                         return;
-
                     default:
                         System.out.println("Lựa chọn không hợp lệ");
                 }
@@ -85,27 +71,18 @@ public class CustomerMenu {
             }
         }
     }
+
     static void xemTrangThai(int userId) {
-        String sql = "SELECT * FROM bookings WHERE user_id=?";
+        BookingDAO dao = new BookingDAO();
+        List<String> list = dao.getBookingsByUserId(userId);
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        System.out.println("\n=== TRẠNG THÁI CỦA BẠN ===");
 
-            ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
-
-            System.out.println("\n=== TRẠNG THÁI CỦA BẠN ===");
-
-            while (rs.next()) {
-                System.out.println(
-                        "Booking ID: " + rs.getInt("id") +
-                                " | PC: " + rs.getInt("pc_id") +
-                                " | Status: " + rs.getString("status")
-                );
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (list.isEmpty()) {
+            System.out.println("Bạn chưa có đơn đặt máy nào.");
+            return;
         }
+
+        list.forEach(System.out::println);
     }
 }

@@ -130,4 +130,17 @@ public class UserDAO {
         }
         return list;
     }
+
+    public int findActivePcByUserId(int userId) {
+        String sql = "SELECT pc_id FROM bookings WHERE user_id=? AND status='SERVING' LIMIT 1";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt("pc_id");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
 }

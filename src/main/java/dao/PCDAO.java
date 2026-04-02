@@ -79,16 +79,6 @@ public class PCDAO {
             e.printStackTrace();
         }
     }
-    // check máy đã đặt
-    static void showAvailablePC(PCDAO dao) {
-        System.out.println("\n=== DANH SACH MAY TRONG ===");
-
-        dao.findAll().stream()
-                .filter(pc -> "AVAILABLE".equalsIgnoreCase(pc.getStatus()))
-                .forEach(pc ->
-                        System.out.println(pc.getId() + " - " + pc.getPcName())
-                );
-    }
     public boolean existsByName(String name) {
         String sql = "SELECT id FROM pcs WHERE pc_name=?";
         try (Connection conn = DBConnection.getConnection();

@@ -143,7 +143,7 @@ public class CustomerHandler {
         System.out.printf("Số dư còn lại: %,.0f VND%n", user.getBalance());
 
         System.out.println("\nĐặt máy thành công!");
-        System.out.println("Trạng thái: ĐANG CHƠI");
+        System.out.println("Trạng thái: CHỜ XÁC NHẬN (Staff sẽ xác nhận và kích hoạt máy cho bạn)");
     }
 
     public static void xemTaiKhoan(User user) {

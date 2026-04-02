@@ -1,10 +1,7 @@
 package presentation;
 
 import dao.BookingDAO;
-import util.DBConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Scanner;
 
@@ -59,6 +56,14 @@ public class StaffMenu {
                                 " | User: " + row[1] +
                                 " | PC: " + row[2]
                 );
+                // [FIX] Hiển thị đơn F&B kèm theo booking
+                List<String> orders = dao.getOrdersByBookingId(row[0]);
+                if (orders.isEmpty()) {
+                    System.out.println("  (Không có đồ ăn/thức uống)");
+                } else {
+                    System.out.println("  Đơn F&B:");
+                    orders.forEach(System.out::println);
+                }
             }
         } catch (Exception e) {
             System.out.println("Lỗi khi tải danh sách booking!");
@@ -92,36 +97,20 @@ public class StaffMenu {
         String status;
         switch (c) {
             case 1: status = "CONFIRMED"; break;
-            case 2: status = "SERVING"; break;
-            case 3: status = "DONE"; break;
+            case 2: status = "SERVING";   break;
+            case 3: status = "DONE";      break;
             default:
                 System.out.println("Không hợp lệ");
                 return;
         }
 
-        String sql = "UPDATE bookings SET status=? WHERE id=?";
+        BookingDAO dao = new BookingDAO();
+        boolean ok = dao.updateStatusWithPC(id, status);
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status);
-            ps.setInt(2, id);
-            int row = ps.executeUpdate();
-
-            if (row > 0) {
-                if (status.equals("DONE")) {
-                    PreparedStatement ps2 = conn.prepareStatement(
-                            "UPDATE pcs SET status='AVAILABLE' WHERE id = (SELECT pc_id FROM bookings WHERE id=?)"
-                    );
-                    ps2.setInt(1, id);
-                    ps2.executeUpdate();
-                }
-                System.out.println("Cập nhật thành công!");
-            } else {
-                System.out.println("ID không tồn tại!");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (ok) {
+            System.out.println("Cập nhật thành công! Trạng thái mới: " + status);
+        } else {
+            System.out.println("Cập nhật thất bại! Booking ID không tồn tại.");
         }
     }
 }

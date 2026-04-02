@@ -14,23 +14,37 @@ public class OrderService {
         List<int[]> cart = new ArrayList<>();
 
         System.out.println("\n=== MENU ĐỒ ĂN ===");
-        dao.findAll().forEach(f ->
-                System.out.println(f.getId() + " - " + f.getName() + " - " + f.getPrice())
+        List<Food> foods = dao.findAll();
+        foods.forEach(f ->
+                System.out.printf("%-3d - %-20s - %,.0f VND (còn %d)%n",
+                        f.getId(), f.getName(), f.getPrice(), f.getStock())
         );
 
         while (true) {
             System.out.print("Nhập ID món (0 để dừng): ");
-            int id = Integer.parseInt(sc.nextLine());
+            int id;
+            try {
+                id = Integer.parseInt(sc.nextLine());
+            } catch (Exception e) {
+                System.out.println("ID không hợp lệ, vui lòng nhập số!");
+                continue;
+            }
             if (id == 0) break;
 
             System.out.print("Số lượng: ");
-            int qty = Integer.parseInt(sc.nextLine());
-
-            if (qty <= 0) {
-                System.out.println("Số lượng không hợp lệ!");
+            int qty;
+            try {
+                qty = Integer.parseInt(sc.nextLine());
+            } catch (Exception e) {
+                System.out.println("Số lượng không hợp lệ, vui lòng nhập số!");
                 continue;
             }
-            List<Food> foods = dao.findAll();
+
+            if (qty <= 0) {
+                System.out.println("Số lượng phải > 0!");
+                continue;
+            }
+
             Food f = foods.stream()
                     .filter(x -> x.getId() == id)
                     .findFirst().orElse(null);
@@ -41,11 +55,12 @@ public class OrderService {
             }
 
             if (f.getStock() < qty) {
-                System.out.println("Không đủ hàng!");
+                System.out.println("Không đủ hàng! Hiện còn: " + f.getStock());
                 continue;
             }
 
             cart.add(new int[]{id, qty});
+            System.out.println("Đã thêm: " + f.getName() + " x" + qty);
         }
 
         return cart;

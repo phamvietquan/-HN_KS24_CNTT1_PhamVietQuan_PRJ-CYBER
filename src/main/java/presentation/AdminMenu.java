@@ -10,12 +10,8 @@ import model.PC;
 import model.User;
 import service.AuthService;
 import service.BookingService;
-import util.DBConnection;
 import util.InputUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -385,7 +381,6 @@ public class AdminMenu {
     }
 
     static void hienThiFood(FoodDAO dao) {
-        // [FIX] Gọi findAll() 1 lần duy nhất, dùng cho cả kiểm tra empty và in ra
         List<Food> list = dao.findAll();
 
         if (list.isEmpty()) {
@@ -475,32 +470,40 @@ public class AdminMenu {
         }
 
         System.out.println("Thông tin cũ:");
-        System.out.println(old.getId() + " - " + old.getName() + " - " + old.getPrice());
+        System.out.printf("%-3d - %-20s - %,.0f VND - Tồn kho: %d%n",
+                old.getId(), old.getName(), old.getPrice(), old.getStock());
 
-        System.out.print("Giá mới: ");
-        double price;
-        try {
-            price = Double.parseDouble(sc.nextLine());
-            if (price <= 0)
-                throw new Exception();
-        } catch (Exception e) {
-            System.out.println("Giá không hợp lệ!");
-            return;
+        System.out.print("Tên mới (Enter để giữ nguyên): ");
+        String nameInput = sc.nextLine();
+        if (!nameInput.isEmpty()) {
+            old.setName(nameInput);
         }
 
-        System.out.print("Tồn kho mới: ");
-        int stock;
-        try {
-            stock = Integer.parseInt(sc.nextLine());
-            if (stock < 0)
-                throw new Exception();
-        } catch (Exception e) {
-            System.out.println("Tồn kho không hợp lệ!");
-            return;
+        System.out.print("Giá mới (Enter để giữ nguyên): ");
+        String priceInput = sc.nextLine();
+        if (!priceInput.isEmpty()) {
+            try {
+                double price = Double.parseDouble(priceInput);
+                if (price <= 0) throw new Exception();
+                old.setPrice(price);
+            } catch (Exception e) {
+                System.out.println("Giá không hợp lệ!");
+                return;
+            }
         }
 
-        old.setPrice(price);
-        old.setStock(stock);
+        System.out.print("Tồn kho mới (Enter để giữ nguyên): ");
+        String stockInput = sc.nextLine();
+        if (!stockInput.isEmpty()) {
+            try {
+                int stock = Integer.parseInt(stockInput);
+                if (stock < 0) throw new Exception();
+                old.setStock(stock);
+            } catch (Exception e) {
+                System.out.println("Tồn kho không hợp lệ!");
+                return;
+            }
+        }
 
         dao.update(old);
         System.out.println("Cập nhật thành công");
@@ -636,23 +639,12 @@ public class AdminMenu {
                             "ID", "Username", "Role", "Balance", "PC");
                     System.out.println("+-----+-----------------+-----------+--------------+-----------+");
 
-                    String sql = "SELECT pc_id FROM bookings WHERE user_id=? AND status='SERVING'";
-
                     dao.findAll().stream()
                             .filter(u -> role.equalsIgnoreCase(u.getRole()))
                             .forEach(u -> {
-                                String pc = "Không";
-                                try (Connection conn = DBConnection.getConnection();
-                                        PreparedStatement ps = conn.prepareStatement(sql)) {
-                                    ps.setInt(1, u.getId());
-                                    ResultSet rs = ps.executeQuery();
-                                    if (rs.next()) {
-                                        pc = "PC " + rs.getInt("pc_id");
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                System.out.printf("| %-3d | %-15s | %-9s | %12s | %-9s |\n",
+                                int pcId = dao.findActivePcByUserId(u.getId());
+                                String pc = (pcId == -1) ? "Không" : "PC " + pcId;
+                                System.out.printf("| %-3d | %-15s | %-9s | %12s | %-9s |%n",
                                         u.getId(),
                                         u.getUsername(),
                                         u.getRole(),
