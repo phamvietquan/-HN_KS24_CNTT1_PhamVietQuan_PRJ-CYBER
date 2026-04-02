@@ -542,20 +542,15 @@ public class AdminMenu {
 
     static void categoryMenu(CategoryDAO dao, Scanner sc) {
         while (true) {
-            System.out
-                    .println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━ CATEGORY ━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-            System.out
-                    .println("|                            |                          |                            |");
-            System.out
-                    .println("| 1. Hiển thị danh sách      | 2. Thêm category         | 3. Xoá category            |");
-            System.out
-                    .println("|                            |                          |                            |");
-            System.out
-                    .println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-            System.out.println("|                            |");
-            System.out.println("| 0. Quay lại                |");
-            System.out.println("|                            |");
-            System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+            System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━ CATEGORY ━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+            System.out.println("|                            |                          |                            |");
+            System.out.println("| 1. Hiển thị danh sách      | 2. Thêm category         | 3. Sửa category            |");
+            System.out.println("|                            |                          |                            |");
+            System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+            System.out.println("|                            |                          |");
+            System.out.println("| 4. Xoá category            | 0. Quay lại              |");
+            System.out.println("|                            |                          |");
+            System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
 
             int c;
             try {
@@ -572,9 +567,15 @@ public class AdminMenu {
 
                 case 2:
                     System.out.print("Tên category: ");
-                    String name = sc.nextLine();
+                    String name = sc.nextLine().trim();
                     if (name.isEmpty()) {
                         System.out.println("Không được để trống!");
+                        break;
+                    }
+                    boolean nameExists = dao.findAll().stream()
+                            .anyMatch(x -> x.getName().equalsIgnoreCase(name));
+                    if (nameExists) {
+                        System.out.println("Tên category đã tồn tại!");
                         break;
                     }
                     Category cat = new Category();
@@ -583,14 +584,26 @@ public class AdminMenu {
                     break;
 
                 case 3:
+                    suaCategory(dao, sc);
+                    break;
+
+                case 4:
                     System.out.print("ID cần xóa: ");
                     try {
                         int id = Integer.parseInt(sc.nextLine());
-                        if (dao.findById(id) == null) {
+                        Category found = dao.findById(id);
+                        if (found == null) {
                             System.out.println("Không tồn tại!");
                             break;
                         }
-                        dao.delete(id);
+                        System.out.print("Bạn có chắc muốn xóa \"" + found.getName() + "\"? (Y/N): ");
+                        String confirm = sc.nextLine();
+                        if (confirm.equalsIgnoreCase("Y")) {
+                            dao.delete(id);
+                            System.out.println("Đã xóa thành công.");
+                        } else {
+                            System.out.println("Đã hủy.");
+                        }
                     } catch (Exception e) {
                         System.out.println("ID không hợp lệ!");
                     }
@@ -603,6 +616,46 @@ public class AdminMenu {
                     System.out.println("Lựa chọn không hợp lệ!");
             }
         }
+    }
+
+    static void suaCategory(CategoryDAO dao, Scanner sc) {
+        System.out.println("\n=== SỬA CATEGORY ===");
+
+        dao.findAll().forEach(c -> System.out.println(c.getId() + " - " + c.getName()));
+
+        System.out.print("\nNhập ID cần sửa: ");
+        int id;
+        try {
+            id = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("ID không hợp lệ!");
+            return;
+        }
+
+        Category old = dao.findById(id);
+        if (old == null) {
+            System.out.println("Category không tồn tại!");
+            return;
+        }
+
+        System.out.println("Tên hiện tại: " + old.getName());
+        System.out.print("Tên mới (Enter để giữ nguyên): ");
+        String newName = sc.nextLine().trim();
+
+        if (newName.isEmpty()) {
+            System.out.println("Không thay đổi gì.");
+            return;
+        }
+
+        boolean nameExists = dao.findAll().stream()
+                .anyMatch(c -> c.getName().equalsIgnoreCase(newName) && c.getId() != id);
+        if (nameExists) {
+            System.out.println("Tên category đã tồn tại!");
+            return;
+        }
+
+        old.setName(newName);
+        dao.update(old);
     }
 
     static void userMenu(Scanner sc) {

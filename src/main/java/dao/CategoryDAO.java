@@ -63,6 +63,23 @@ public class CategoryDAO {
         }
     }
 
+    public void update(Category c) {
+        String sql = "UPDATE categories SET name=? WHERE id=?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, c.getName());
+            ps.setInt(2, c.getId());
+            ps.executeUpdate();
+
+            System.out.println("Cập nhật category thành công");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public Category findById(int id) {
         String sql = "SELECT * FROM categories WHERE id = ?";
 
